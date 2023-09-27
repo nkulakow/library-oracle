@@ -1,0 +1,147 @@
+-- pl/sql tests
+
+-- order book
+EXEC ORDER_BOOK(3, 3, 2);
+
+/
+
+EXEC ORDER_BOOK(15, 10, 1);
+
+/
+
+EXEC ORDER_BOOK(2020, 17, 2);
+
+/
+
+EXEC ORDER_BOOK(15, 17, 1);
+
+/
+
+EXEC ORDER_BOOK(18, 2, 1); -- invalid user_id ERROR
+
+
+/
+
+EXEC ORDER_BOOK(3, 36, 2); -- invalid book_id ERROR
+
+
+/
+
+EXEC ORDER_BOOK(3, 31, 0); -- invalid rental time ERROR
+
+
+/
+
+-- borrow ordered books
+
+EXEC BORROW_BOOK(3, 3);
+
+/
+
+EXEC BORROW_BOOK(15, 10);
+
+/
+
+EXEC BORROW_BOOK(2020, 17);
+
+/
+
+EXEC BORROW_BOOK(15, 17); -- book not available ERROR
+
+
+/
+
+EXEC BORROW_BOOK(3, 3); -- order not found ERROR
+
+
+/
+
+EXEC BORROW_BOOK(12, 10); -- order not found ERROR
+
+
+/
+
+-- return and borrow books
+
+EXEC RETURN_BOOK(3, 3);
+
+/
+
+EXEC ORDER_BOOK(3, 3, 2);
+
+/
+
+EXEC BORROW_BOOK(3, 3);
+
+/
+
+EXEC RETURN_BOOK(2020, 17);
+
+/
+
+EXEC BORROW_BOOK(15, 17); -- now available
+
+
+--queries
+
+SELECT
+    NAME,
+    AUTHOR
+FROM
+    BOOKS
+WHERE
+    CATEGORY IS NULL;
+
+/
+
+SELECT
+    CATEGORY,
+    COUNT(BOOK_ID)
+FROM
+    BOOKS
+GROUP BY
+    CATEGORY;
+
+/
+
+SELECT
+    AUTHOR,
+    COUNT(BOOK_ID)
+FROM
+    BOOKS
+GROUP BY
+    AUTHOR
+ORDER BY
+    COUNT(BOOK_ID) DESC;
+
+/
+
+SELECT
+    U.NAME,
+    UL.LOGIN,
+    B.NAME
+FROM
+    USERS            U
+    JOIN USER_ID_TO_LOGIN UL
+    USING (USER_ID) JOIN ORDERED O
+    ON (USER_ID = USERS_USER_ID)
+    JOIN BOOKS B
+    ON (BOOKS_BOOK_ID = BOOK_ID)
+WHERE
+    U.PHONE_NUMBER IS NOT NULL;
+
+/
+
+SELECT
+    BK.NAME,
+    BK.AUTHOR,
+    BD.BORROW_DATE,
+    BD.RETURN_DATE,
+    U.NAME
+FROM
+    BOOKS    BK
+    JOIN BORROWED BD
+    USING(BOOK_ID) JOIN USERS U
+    USING(USER_ID)
+WHERE
+    CATEGORY LIKE 'FANTASY';

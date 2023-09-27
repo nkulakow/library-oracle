@@ -1,0 +1,54 @@
+-- ? check if is available -> check if is in ordered if yes then remove from orders -> write to borrowed
+
+CREATE OR REPLACE PROCEDURE BORROW_BOOK(
+    V_USER_ID USERS.USER_ID%TYPE,
+    V_BOOK_ID BOOKS.BOOK_ID%TYPE
+) AS
+    RENTAL_TIME_MONTHS NUMBER;
+BEGIN
+ -- check if book exists in db m
+    IF NOT VALIDATE_DATA.CHECK_BOOK_EXISTS(V_BOOK_ID) THEN
+        RAISE VALIDATE_DATA.INVALID_BOOK_ID;
+    END IF;
+ -- check if user exists
+    IF NOT VALIDATE_DATA.CHECK_USER_EXISTS(V_USER_ID) THEN
+        RAISE VALIDATE_DATA.INVALID_USER_ID;
+    END IF;
+ -- check if is available
+    IF VALIDATE_DATA.CHECK_BOOK_AVAILABLE(V_BOOK_ID) THEN
+        SELECT
+            TIME INTO RENTAL_TIME_MONTHS
+        FROM
+            ORDERED
+        WHERE
+            USERS_USER_ID = V_USER_ID
+            AND BOOKS_BOOK_ID = V_BOOK_ID;
+        INSERT INTO BORROWED (
+            USER_ID,
+            BOOK_ID,
+            RETURN_DATE,
+            BORROW_DATE
+        ) VALUES (
+            V_USER_ID,
+            V_BOOK_ID,
+            ADD_MONTHS(SYSDATE, RENTAL_TIME_MONTHS),
+            SYSDATE
+        );
+    ELSE
+        RAISE VALIDATE_DATA.BOOK_UNAVAILABLE;
+    END IF;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('NO');
+        RAISE VALIDATE_DATA.NO_ORDER_FOUND;
+END BORROW_BOOK;
+/
+
+CREATE OR REPLACE TRIGGER DELETE_ORDER_ON_BORROW BEFORE
+    INSERT ON BORROWED FOR EACH ROW
+BEGIN
+    DELETE FROM ORDERED
+    WHERE
+        BOOKS_BOOK_ID = :NEW.BOOK_ID
+        AND USERS_USER_ID = :NEW.USER_ID;
+END DELETE_ORDER_ON_BORROW;

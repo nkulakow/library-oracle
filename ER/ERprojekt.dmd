@@ -1,0 +1,13 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="ERprojekt" id="A228B765-A664-0598-A029-13AEDF962439" version="3.5">
+<createdBy>Nel</createdBy>
+<createdTime>2023-01-16 19:23:42 UTC</createdTime>
+<ownerDesignName>ERprojekt</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>A228B765-A664-0598-A029-13AEDF962439</designId>
+<usedDesignStorageDescriptors>
+<designDescr class="oracle.dbtools.crest.model.design.Design$DesignStorageDesc" id="195DB213-1395-7D16-302D-041D3A82DE6E">
+<designStoragePath>C:\create</designStoragePath>
+</designDescr>
+</usedDesignStorageDescriptors>
+</OSDM_Design>
